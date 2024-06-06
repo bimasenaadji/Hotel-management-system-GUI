@@ -3,20 +3,40 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package HotelManagementSystem;
+import database.Dbconnection;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
- * @author Lenovo
+ * @author Asus
  */
 public class DataTransaction extends Menu {
-    
+    Connection conn;
+    Statement stmt;
+    ResultSet rs;
+    Dbconnection connection;
+    String[] columnNames = {"ID", "No Ruangan", "Tanggal Booking", "Durasi", "Customer ID", "Jenis Pembayaran", "Harga Transaksi"};
+    DefaultTableModel model = new DefaultTableModel(columnNames,0);
+
 
     /**
      * Creates new form DashboardAdmin
      */
     public DataTransaction() {
         initComponents();
+        connection = new Dbconnection();
+        conn = connection.getConnection();
         
+        displayTransactionData();
     }
 
     /**
@@ -161,6 +181,34 @@ public class DataTransaction extends Menu {
             }
         });
     }
+    
+    private void displayTransactionData(){
+        try {
+            String sql = "SELECT * FROM detail_transaksi";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("id"),
+                    rs.getInt("no_ruangan"),
+                    rs.getDate("tanggal_booking"),
+                    rs.getInt("durasi"),
+                    rs.getInt("customer_id"),
+                    rs.getString("jenis_pembayaran"),
+                    rs.getDouble("harga_transaksi")
+                };
+                model.addRow(row);
+                jTableDataTransaksi.setModel(model);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+    }
+
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
