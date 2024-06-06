@@ -3,18 +3,38 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package HotelManagementSystem;
+import database.Dbconnection;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  *
  * @author Lenovo
  */
 public class DashboardAdmin extends Menu {
+//    Menyimpan koneksi ke mysql
+    Connection conn;
+    
+//    Variabel statement
+    Statement stmt;
+    
+//    Variabel untuk menyimpan hasil
+    ResultSet rs;
+    
+    Dbconnection connection;
 
     /**
      * Creates new form DashboardAdmin
      */
     public DashboardAdmin() {
         initComponents();
+        connection = new Dbconnection();
+        conn = connection.getConnection();
+        
+        displayAdminInfo();
+
     }
 
     /**
@@ -31,9 +51,9 @@ public class DashboardAdmin extends Menu {
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        jTextFieldKamar = new javax.swing.JTextField();
+        jTextFieldTamu = new javax.swing.JTextField();
+        jTextFieldPendapatan = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(700, 450));
@@ -52,16 +72,21 @@ public class DashboardAdmin extends Menu {
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel4.setText("Jumlah Pendapatan :");
 
-        jTextField1.setEditable(false);
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        jTextFieldKamar.setEditable(false);
+        jTextFieldKamar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                jTextFieldKamarActionPerformed(evt);
             }
         });
 
-        jTextField2.setEditable(false);
+        jTextFieldTamu.setEditable(false);
 
-        jTextField3.setEditable(false);
+        jTextFieldPendapatan.setEditable(false);
+        jTextFieldPendapatan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldPendapatanActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -80,9 +105,9 @@ public class DashboardAdmin extends Menu {
                             .addComponent(jLabel4))
                         .addGap(43, 43, 43)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField1)
-                            .addComponent(jTextField2)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jTextFieldKamar)
+                            .addComponent(jTextFieldTamu)
+                            .addComponent(jTextFieldPendapatan, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(43, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -93,15 +118,15 @@ public class DashboardAdmin extends Menu {
                 .addGap(101, 101, 101)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldKamar, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldTamu, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldPendapatan, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(164, Short.MAX_VALUE))
         );
 
@@ -124,9 +149,13 @@ public class DashboardAdmin extends Menu {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void jTextFieldKamarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldKamarActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_jTextFieldKamarActionPerformed
+
+    private void jTextFieldPendapatanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldPendapatanActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldPendapatanActionPerformed
 
     /**
      * @param args the command line arguments
@@ -162,6 +191,39 @@ public class DashboardAdmin extends Menu {
             }
         });
     }
+    
+       //    Utils
+    private void displayAdminInfo() {
+        try  {
+            // Query for total rooms
+            String sql = "SELECT COUNT(*) AS total_rooms FROM ruangan";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                jTextFieldKamar.setText(String.valueOf(rs.getInt("total_rooms")));
+            }
+
+            // Query for total guests
+            sql = "SELECT COUNT(*) AS total_guests FROM customer";
+            rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                jTextFieldTamu.setText(String.valueOf(rs.getInt("total_guests")));
+            }
+
+            // Query for total revenue
+            sql = "SELECT SUM(harga_transaksi) AS total_revenue FROM detail_transaksi";
+            rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+            jTextFieldPendapatan.setText("Rp: " + String.valueOf(rs.getInt("total_revenue")));
+                       }
+                   } catch (SQLException e) {
+                       e.printStackTrace();
+                       jTextFieldKamar.setText("Error");
+                       jTextFieldTamu.setText("Error");
+                       jTextFieldPendapatan.setText("Error");
+                   }
+               }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
@@ -169,8 +231,8 @@ public class DashboardAdmin extends Menu {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextFieldKamar;
+    private javax.swing.JTextField jTextFieldPendapatan;
+    private javax.swing.JTextField jTextFieldTamu;
     // End of variables declaration//GEN-END:variables
 }
