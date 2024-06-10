@@ -4,22 +4,49 @@
  */
 package HotelManagementSystem;
 
+import database.Dbconnection;
+import database.Dbconnection;
+import javax.swing.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author Lenovo
  */
 public class DataRooms extends Menu {
+     
+//    Menyimpan koneksi ke mysql
+    Connection conn;
     
+//    Variabel statement
+    Statement stmt;
     
+//    Variabel untuk menyimpan hasil
+    ResultSet rs;
+    
+    Dbconnection connection;
+    
+    // Table for displaying customer data
+        String[] columnNames = {"ID", "Nama", "No Ruangan", "Kontak", "Durasi"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+
     /**
      * Creates new form DashboardAdmin
      */
-    public DataRooms() {
+    public DataCustomers() {
         initComponents();
         
+        connection = new Dbconnection();
+        conn = connection.getConnection();
+        
+        displayCustomerData();
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -291,6 +318,167 @@ public class DataRooms extends Menu {
         });
     }
     
+//    Utils
+    private void addCustomerBooking() {
+        String name = jTextFieldNama.getText();
+        int room = Integer.parseInt(jTextFieldNoRuangan.getText());
+        String contact = jTextFieldKontak.getText();
+        int duration = Integer.parseInt(jComboBoxDurasiHari.getSelectedItem().toString());
+        String payment = jComboBoxJenisPembayaran.getSelectedItem().toString();
+
+        try {
+            // Check if the room exists in the 'ruangan' table
+        String checkRoomSql = "SELECT COUNT(*) AS count FROM ruangan WHERE no_ruangan = ?";
+        PreparedStatement checkRoomStmt = conn.prepareStatement(checkRoomSql);
+        checkRoomStmt.setInt(1, room);
+        ResultSet rs = checkRoomStmt.executeQuery();
+        
+        if (rs.next() && rs.getInt("count") > 0) {
+            // Insert into 'customer' table
+            String sql = "INSERT INTO customer (id,nama, no_ruangan, kontak, durasi) VALUES (?, ?, ?, ?, ?)";
+            // Batas atas untuk ID, misalnya 10000 untuk menghasilkan ID antara 0 dan 9999
+            int upperBound = 10000;
+
+            // Menghasilkan ID acak
+            int randomID = (int) (Math.random() * upperBound);
+            
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, randomID);
+            pstmt.setString(2, name);
+            pstmt.setInt(3, room);
+            pstmt.setString(4, contact);
+            pstmt.setInt(5, duration);
+            pstmt.executeUpdate();
+            
+            
+            
+            double hargaTransaksi = Double.parseDouble(jTextFieldHarga.getText());
+
+            // Insert into 'detail_transaksi' table
+            sql = "INSERT INTO detail_transaksi (no_ruangan, tanggal_booking, durasi, customer_id, jenis_pembayaran, harga_transaksi) " +
+                  "VALUES (?, CURDATE(), ?, ?, ?, ?)";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, room);
+                pstmt.setInt(2, duration);
+                pstmt.setInt(3, randomID);
+                pstmt.setString(4, payment);
+                pstmt.setDouble(5, hargaTransaksi);
+            pstmt.executeUpdate();
+            
+            // Update room status to 'kosong'
+                sql = "UPDATE ruangan SET status = 'Di Sewa' WHERE no_ruangan = ?";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setInt(1, room);
+                pstmt.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Data customer berhasil ditambahkan !");
+        } else {
+            JOptionPane.showMessageDialog(this, "No Ruangan tidak ada !");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+    }
+    }
+    
+    private void displayCustomerData(){
+         try {
+            String sql = "SELECT * FROM customer";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            // Clear existing data
+            model.setRowCount(0);
+
+            // Add new data to table model
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("id"),
+                    rs.getString("nama"),
+                    rs.getInt("no_ruangan"),
+                    rs.getString("kontak"),
+                    rs.getInt("durasi")
+                };
+                model.addRow(row);
+                jTableDataCustomer.setModel(model);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+     }
+    
+    private void displayHarga(){
+         try{
+            // Check if the room exists in the 'ruangan' table
+            String checkRoomSql = "SELECT harga FROM ruangan WHERE no_ruangan = ?";
+            PreparedStatement checkRoomStmt = conn.prepareStatement(checkRoomSql);
+            
+//            Variabel ruangan
+            int room = Integer.parseInt(jTextFieldNoRuangan.getText());
+            checkRoomStmt.setInt(1, room);
+            ResultSet rs = checkRoomStmt.executeQuery();
+            if (rs.next()) {
+                int roomPrice = (int)rs.getDouble("harga");
+                int durasi = Integer.parseInt(jComboBoxDurasiHari.getSelectedItem().toString());
+                String totalPrice = Integer.toString(roomPrice * durasi);
+                
+                
+                jTextFieldHarga.setText(totalPrice);
+                }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+     } 
+    
+    private void deleteCustomer(){
+        int idCustomer = Integer.parseInt(jTextFieldIdCustomer.getText());
+
+        try{
+        // Get room number associated with the customer
+        String getRoomSql = "SELECT no_ruangan FROM customer WHERE id = ?";
+        PreparedStatement getRoomStmt = conn.prepareStatement(getRoomSql);
+        getRoomStmt.setInt(1, idCustomer);
+        ResultSet rs = getRoomStmt.executeQuery();
+        if (rs.next()) {
+            int roomNumber = rs.getInt("no_ruangan");
+
+            // Delete related data from 'detail_transaksi' table
+            String deleteTransactionSql = "DELETE FROM detail_transaksi WHERE customer_id = ?";
+            PreparedStatement deleteTransactionStmt = conn.prepareStatement(deleteTransactionSql);
+            deleteTransactionStmt.setInt(1, idCustomer);
+            deleteTransactionStmt.executeUpdate();
+
+            // Delete customer from 'customer' table
+            String deleteCustomerSql = "DELETE FROM customer WHERE id = ?";
+            PreparedStatement deleteCustomerStmt = conn.prepareStatement(deleteCustomerSql);
+            deleteCustomerStmt.setInt(1, idCustomer);
+            deleteCustomerStmt.executeUpdate();
+
+            // Update room status to 'kosong'
+            String updateRoomSql = "UPDATE ruangan SET status = 'kosong' WHERE no_ruangan = ?";
+            PreparedStatement updateRoomStmt = conn.prepareStatement(updateRoomSql);
+            updateRoomStmt.setInt(1, roomNumber);
+            updateRoomStmt.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Data customer berhasil dihapus!");
+
+            // Refresh customer data display
+            displayCustomerData();
+        } else {
+            JOptionPane.showMessageDialog(this, "ID Customer tidak ditemukan !");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+    }
+
+    // Clear input field
+    jTextFieldIdCustomer.setText("");
+     }
+    
+        
    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtoRefresh;

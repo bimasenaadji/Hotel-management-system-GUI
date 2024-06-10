@@ -66,8 +66,8 @@
                               <Component id="jTextFieldNama" max="32767" attributes="0"/>
                               <Component id="jTextFieldNoRuangan" max="32767" attributes="0"/>
                               <Component id="jTextFieldKontak" max="32767" attributes="0"/>
-                              <Component id="jTextFieldDurasi" max="32767" attributes="0"/>
                               <Component id="jTextFieldHarga" alignment="0" max="32767" attributes="0"/>
+                              <Component id="jComboBoxDurasiHari" alignment="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
@@ -112,9 +112,9 @@
                       <Component id="jTextFieldKontak" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jTextFieldDurasi" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                      <Component id="jComboBoxDurasiHari" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
@@ -172,12 +172,6 @@
         </Component>
         <Component class="javax.swing.JTextField" name="jTextFieldKontak">
         </Component>
-        <Component class="javax.swing.JTextField" name="jTextFieldDurasi">
-          <Events>
-            <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jTextFieldDurasiFocusLost"/>
-            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextFieldDurasiKeyTyped"/>
-          </Events>
-        </Component>
         <Component class="javax.swing.JButton" name="jButtonSubmit">
           <Properties>
             <Property name="text" type="java.lang.String" value="Submit"/>
@@ -224,6 +218,28 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jTextFieldIdCustomer">
+        </Component>
+        <Component class="javax.swing.JComboBox" name="jComboBoxDurasiHari">
+          <Properties>
+            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+              <StringArray count="8">
+                <StringItem index="0" value="Pilih Hari"/>
+                <StringItem index="1" value="1"/>
+                <StringItem index="2" value="2"/>
+                <StringItem index="3" value="3"/>
+                <StringItem index="4" value="4"/>
+                <StringItem index="5" value="5"/>
+                <StringItem index="6" value="6"/>
+                <StringItem index="7" value="7"/>
+              </StringArray>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jComboBoxDurasiHariFocusLost"/>
+          </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+          </AuxValues>
         </Component>
       </SubComponents>
     </Container>

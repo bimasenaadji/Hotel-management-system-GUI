@@ -3,18 +3,43 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package HotelManagementSystem;
-
+import database.Dbconnection;
+import database.Dbconnection;
+import javax.swing.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author Lenovo
  */
 public class DataCustomers extends Menu {
-
+//    Menyimpan koneksi ke mysql
+    Connection conn;
+    
+//    Variabel statement
+    Statement stmt;
+    
+//    Variabel untuk menyimpan hasil
+    ResultSet rs;
+    
+    Dbconnection connection;
+    
+    // Table for displaying customer data
+        String[] columnNames = {"ID", "Nama", "No Ruangan", "Kontak", "Durasi"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
     /**
      * Creates new form InputCRUD
      */
     public DataCustomers() {
         initComponents();
+         connection = new Dbconnection();
+        conn = connection.getConnection();
+        
+        displayCustomerData();
     }
 
     /**
@@ -35,7 +60,6 @@ public class DataCustomers extends Menu {
         jTextFieldNama = new javax.swing.JTextField();
         jTextFieldNoRuangan = new javax.swing.JTextField();
         jTextFieldKontak = new javax.swing.JTextField();
-        jTextFieldDurasi = new javax.swing.JTextField();
         jButtonSubmit = new javax.swing.JButton();
         jComboBoxJenisPembayaran = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
@@ -43,6 +67,7 @@ public class DataCustomers extends Menu {
         jButton1 = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         jTextFieldIdCustomer = new javax.swing.JTextField();
+        jComboBoxDurasiHari = new javax.swing.JComboBox<>();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableDataCustomer = new javax.swing.JTable();
@@ -61,17 +86,6 @@ public class DataCustomers extends Menu {
         jLabel4.setText("Durasi");
 
         jLabel5.setText("Jenis Pembayaran");
-
-        jTextFieldDurasi.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                jTextFieldDurasiFocusLost(evt);
-            }
-        });
-        jTextFieldDurasi.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                jTextFieldDurasiKeyTyped(evt);
-            }
-        });
 
         jButtonSubmit.setText("Submit");
         jButtonSubmit.addActionListener(new java.awt.event.ActionListener() {
@@ -95,6 +109,13 @@ public class DataCustomers extends Menu {
 
         jLabel7.setText("Id Customer");
 
+        jComboBoxDurasiHari.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih Hari", "1", "2", "3", "4", "5", "6", "7" }));
+        jComboBoxDurasiHari.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jComboBoxDurasiHariFocusLost(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -114,8 +135,8 @@ public class DataCustomers extends Menu {
                             .addComponent(jTextFieldNama)
                             .addComponent(jTextFieldNoRuangan)
                             .addComponent(jTextFieldKontak)
-                            .addComponent(jTextFieldDurasi)
-                            .addComponent(jTextFieldHarga)))
+                            .addComponent(jTextFieldHarga)
+                            .addComponent(jComboBoxDurasiHari, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel5)
@@ -147,9 +168,9 @@ public class DataCustomers extends Menu {
                     .addComponent(jLabel3)
                     .addComponent(jTextFieldKontak, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel4)
-                    .addComponent(jTextFieldDurasi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBoxDurasiHari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel6)
@@ -231,23 +252,23 @@ public class DataCustomers extends Menu {
 
     private void jButtonSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSubmitActionPerformed
         // TODO add your handling code here:
+        addCustomerBooking();
     }//GEN-LAST:event_jButtonSubmitActionPerformed
 
     private void jButtonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRefreshActionPerformed
         // TODO add your handling code here:
+        displayCustomerData();
     }//GEN-LAST:event_jButtonRefreshActionPerformed
-
-    private void jTextFieldDurasiFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldDurasiFocusLost
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldDurasiFocusLost
-
-    private void jTextFieldDurasiKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldDurasiKeyTyped
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldDurasiKeyTyped
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        deleteCustomer();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jComboBoxDurasiHariFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jComboBoxDurasiHariFocusLost
+        // TODO add your handling code here:
+         displayHarga();
+    }//GEN-LAST:event_jComboBoxDurasiHariFocusLost
 
     /**
      * @param args the command line arguments
@@ -294,6 +315,7 @@ public class DataCustomers extends Menu {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonRefresh;
     private javax.swing.JButton jButtonSubmit;
+    private javax.swing.JComboBox<String> jComboBoxDurasiHari;
     private javax.swing.JComboBox<String> jComboBoxJenisPembayaran;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -306,7 +328,6 @@ public class DataCustomers extends Menu {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTableDataCustomer;
-    private javax.swing.JTextField jTextFieldDurasi;
     private javax.swing.JTextField jTextFieldHarga;
     private javax.swing.JTextField jTextFieldIdCustomer;
     private javax.swing.JTextField jTextFieldKontak;
